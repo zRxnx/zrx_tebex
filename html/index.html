@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang='de'>
+  <head>
+      <meta charset='UTF-8'>
+      <title>zrx_tebex</title>
+  </head>
+  <body>
+    <script>
+      window.addEventListener('message', (event) => {
+        if (event.data.action === 'openUrl' && event.data.url) {
+          window.invokeNative('openUrl', event.data.url);
+        }
+      });
+    </script>
+  </body>
+</html>
