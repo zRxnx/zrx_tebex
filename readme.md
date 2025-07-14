@@ -12,6 +12,7 @@ An advanced tebex system system for FiveM
 
 - Buy Coins Menu
 - Redeem Tebex Code
+- Automatic Grant Coins
 - Buy Items
 - Buy Vehicles
 - Buy Onetime (Phone number, Numberplate, UID)

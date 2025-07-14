@@ -7,6 +7,8 @@ Config.Command = 'zrx_tebex'
 Config.Keybind = 'F7'
 Config.StoreUrl = 'https://tebex.zrxnx.at/'
 
+Config.AutomaticGrant = true --| Automatically grant coins to player | Player NEEDS to connect with a cfx account
+
 Config.Menu = {
     type = 'context', --| context or menu
     postition = 'top-left' --| top-left, top-right, bottom-left or bottom-right

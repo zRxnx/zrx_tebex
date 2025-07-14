@@ -13,9 +13,59 @@ AddEventHandler('onResourceStart', function(res)
     end
 end)
 
+if Config.AutomaticGrant then
+    AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
+        local player = source
+
+        deferrals.defer()
+        Wait(100)
+        deferrals.update('Checking if you have a connected CFX account')
+
+        local identifier = GetPlayerIdentifierByType(player, 'fivem')
+
+        if identifier then
+            deferrals.done()
+        else
+            deferrals.done('You have no connected CFX account')
+        end
+    end)
+end
+
 AddEventHandler('esx:playerLoaded', function(player, xPlayer, isNew)
+    Wait(1000)
     ManagePlayer(player).hasAbo()
     GetCoins(player)
+
+    if Config.AutomaticGrant then
+        local identifier = GetPlayerIdentifierByType(player, 'fivem')
+
+        if not identifier then
+            print('No cfx id', 'Player has no cfx account connected' .. player .. ' ' .. GetPlayerName(player))
+            return
+        end
+
+        local response = MySQL.query.await('SELECT * FROM `zrx_tebex` WHERE `fivem` = ? AND `claimed` = 0', {
+            identifier
+        })
+
+        if not response[1] then
+            print('No data in db')
+            return
+        end
+
+        local targetCoins = 0
+
+        for index, data in pairs(response) do
+            targetCoins = Config.Coins[data.packageName].amount
+
+            MySQL.update.await('UPDATE zrx_tebex SET claimed = 1 WHERE tbxId = ?', {
+                data.tbxId
+            })
+
+            AddCoins(0, player, targetCoins)
+            ZRX_UTIL.notify(player, Strings.tbx_code_redeem:format(targetCoins), 'Tebex', 'success')
+        end
+    end
 end)
 
 CreateThread(function()
@@ -26,7 +76,9 @@ CreateThread(function()
             `id` int(100) NOT NULL AUTO_INCREMENT,
             `tbxId` varchar(25) DEFAULT NULL,
             `packageName` varchar(100) DEFAULT NULL,
+            `fivem` int(50) NOT NULL,
             `claimed` BIT(1) DEFAULT 0,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`)
         ) ENGINE=InnoDB;
     ]])
@@ -79,7 +131,7 @@ lib.cron.new('*/15 * * * *', function()
     end
 end)
 
--- {'transid':'{transaction}', 'packagename':'{packageName}'}
+-- zrx_tebex_purchase {"transid":"{transaction}", "packagename":"{packageName}", "fivem":"{id}"}
 RegisterCommand('zrx_tebex_purchase', function(source, args)
     print(args[1])
     if source ~= 0 then return end
@@ -87,9 +139,10 @@ RegisterCommand('zrx_tebex_purchase', function(source, args)
     local buyData = json.decode(args[1])
     local tbxId = buyData.transid
     local packageName = buyData.packagename
+    local fivem = buyData.fivem
 
-    MySQL.insert.await('INSERT INTO `zrx_tebex` (tbxId, packageName) VALUES (?, ?)', {
-        tbxId, packageName
+    MySQL.insert.await('INSERT INTO `zrx_tebex` (tbxId, packageName, fivem) VALUES (?, ?, ?)', {
+        tbxId, packageName, fivem
     })
 
     print('Transaction insert', tbxId, packageName)
