@@ -21,7 +21,7 @@ if Config.AutomaticGrant then
         Wait(100)
         deferrals.update('Checking if you have a connected CFX account')
 
-        local identifier = GetPlayerIdentifierByType(player, 'fivem')
+        local identifier = GetPlayerIdentifierByType(player, 'fivem'):gsub('fivem:', '')
 
         if identifier then
             deferrals.done()
@@ -37,7 +37,7 @@ AddEventHandler('esx:playerLoaded', function(player, xPlayer, isNew)
     GetCoins(player)
 
     if Config.AutomaticGrant then
-        local identifier = GetPlayerIdentifierByType(player, 'fivem')
+        local identifier = GetPlayerIdentifierByType(player, 'fivem'):gsub('fivem:', '')
 
         if not identifier then
             print('No cfx id', 'Player has no cfx account connected' .. player .. ' ' .. GetPlayerName(player))
@@ -503,8 +503,6 @@ AddCoins = function(executor, player, amount)
     end
 
     lib.logger(executor, 'zrx_tebex:coinsAdd', 'Coins Added to ' .. target .. ' ' .. targetCoins)
-    ZRX_UTIL.notify(executor, Strings.add_executor:format(GetPlayerName(target), targetCoins), 'Tebex', 'success')
-    ZRX_UTIL.notify(target, Strings.add_target:format(targetCoins), 'Tebex', 'info')
 end
 exports('addCoins', AddCoins)
 
@@ -520,6 +518,9 @@ RegisterCommand('addcoins', function(source, args)
     end
 
     AddCoins(source, tonumber(args[1]), tonumber(args[2]))
+    
+    ZRX_UTIL.notify(source, Strings.add_executor:format(GetPlayerName(target), tonumber(args[2])), 'Tebex', 'success')
+    ZRX_UTIL.notify(tonumber(args[1]), Strings.add_target:format(tonumber(args[2])), 'Tebex', 'info')
 end, true)
 
 RemCoins = function(executor, player, amount)
@@ -542,11 +543,12 @@ RemCoins = function(executor, player, amount)
 
         Player(player).state:set('zrx_tebex:coins', coinsToAdd, true)
         lib.logger(executor, 'zrx_tebex:coinsRem', 'Coins Removed to ' .. target .. ' ' .. targetCoins .. ' ' .. coinsToAdd)
-        ZRX_UTIL.notify(executor, Strings.rem_executor:format(GetPlayerName(target), targetCoins), 'Tebex', 'success')
-        ZRX_UTIL.notify(target, Strings.rem_target:format(targetCoins), 'Tebex', 'info')
+
+        return true
     else
         print('Player has no coins')
-        ZRX_UTIL.notify(executor, 'Der Spieler hat keine Coins', 'Tebex', 'error')
+
+        return false
     end
 end
 exports('remCoins', RemCoins)
@@ -562,7 +564,14 @@ RegisterCommand('remcoins', function(source, args)
         return
     end
 
-    RemCoins(source, tonumber(args[1]), tonumber(args[2]))
+    local state = RemCoins(source, tonumber(args[1]), tonumber(args[2]))
+
+    if state then
+        ZRX_UTIL.notify(source, Strings.rem_executor:format(GetPlayerName(target), tonumber(args[2])), 'Tebex', 'success')
+        ZRX_UTIL.notify(tonumber(args[1]), Strings.rem_target:format(tonumber(args[2])), 'Tebex', 'info')
+    else
+        ZRX_UTIL.notify(source, Strings.rem_no_coins, 'Tebex', 'error')
+    end
 end, true)
 
 SetCoins = function(executor, player, amount)
@@ -590,8 +599,6 @@ SetCoins = function(executor, player, amount)
 
     Player(player).state:set('zrx_tebex:coins', targetCoins, true)
     lib.logger(executor, 'zrx_tebex:coinsSet', 'Coins set to ' .. target .. ' ' .. targetCoins)
-    ZRX_UTIL.notify(executor, Strings.set_executor:format(GetPlayerName(target), targetCoins), 'Tebex', 'success')
-    ZRX_UTIL.notify(target, Strings.set_target:format(targetCoins), 'Tebex', 'info')
 end
 exports('setCoins', SetCoins)
 
@@ -607,6 +614,9 @@ RegisterCommand('setcoins', function(source, args)
     end
 
     SetCoins(source, tonumber(args[1]), tonumber(args[2]))
+
+    ZRX_UTIL.notify(source, Strings.set_executor:format(GetPlayerName(target), tonumber(args[2])), 'Tebex', 'success')
+    ZRX_UTIL.notify(tonumber(args[1]), Strings.set_target:format(tonumber(args[2])), 'Tebex', 'info')
 end, true)
 
 IsValidPlate = function(plate)

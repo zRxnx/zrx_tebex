@@ -132,6 +132,7 @@ Strings = {
 
     rem_executor = 'You removed %s Coins from %s',
     rem_target = '%s Coins got removed from you',
+    rem_no_coins = 'The player has no coins',
 
     set_executor = 'You set %s Coins to %s',
     set_target = 'You have now %s Coins',

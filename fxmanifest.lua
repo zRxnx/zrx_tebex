@@ -5,7 +5,7 @@ use_experimental_fxv2_oal 'yes'
 
 name 'zrx_tebex'
 author 'zRxnx'
-version '1.1.0'
+version '1.1.1'
 description 'Advanced tebex system'
 repository 'https://github.com/zrxnx/zrx_tebex'
 
