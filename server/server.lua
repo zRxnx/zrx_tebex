@@ -76,7 +76,7 @@ CreateThread(function()
             `id` int(100) NOT NULL AUTO_INCREMENT,
             `tbxId` varchar(25) DEFAULT NULL,
             `packageName` varchar(100) DEFAULT NULL,
-            `fivem` int(50) NOT NULL,
+            `fivem` int(50) DEFAULT NULL,
             `claimed` BIT(1) DEFAULT 0,
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`)
