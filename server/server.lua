@@ -16,12 +16,11 @@ end)
 if Config.AutomaticGrant then
     AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
         local player = source
+        local identifier = GetPlayerIdentifierByType(player, 'fivem')
 
         deferrals.defer()
         Wait(100)
         deferrals.update('Checking if you have a connected CFX account')
-
-        local identifier = GetPlayerIdentifierByType(player, 'fivem'):gsub('fivem:', '')
 
         if identifier then
             deferrals.done()
